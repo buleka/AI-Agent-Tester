@@ -1,0 +1,27 @@
+version: 2
+
+reviews:
+  enabled: true
+  model: "claude-3-haiku"
+
+  focus:
+    - vue
+    - security
+    - performance
+
+  ignore:
+    files:
+      - "**/node_modules/**"
+      - ".nuxt"
+      - ".output"
+
+  vue_checks:
+    check_keys: true
+    check_v_html: true
+    max_component_size: 200
+
+  language: "ru"
+
+autofix:
+  enabled: true
+  level: "safe"
