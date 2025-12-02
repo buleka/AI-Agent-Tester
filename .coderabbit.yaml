@@ -1,27 +1,269 @@
+# CodeRabbit Configuration для Vue 3 проекта
 version: 2
 
+# Настройки языка и тона
+language: ru
+tone_instructions: |
+  - Используй дружелюбный, но профессиональный тон
+  - Объясняй "почему", а не только "что" нужно исправить
+  - Предлагай конкретные примеры кода
+  - Ссылайся на Vue 3 Composition API best practices
+
+# Основные настройки ревью
 reviews:
   enabled: true
-  model: "claude-3-haiku"
 
+  # Модель AI (рекомендую Claude для Vue/TypeScript)
+  model: "claude-3-5-sonnet"
+
+  # Высокоуровневая обобщающая ревью
+  high_level_summary: true
+
+  # Poem в начале ревью (можно отключить для серьезных проектов)
+  poem: false
+
+  # Уровень детальности
+  review_status: true
+  collapse_walkthrough: false
+
+  # Приоритетные области проверки
   focus:
     - vue
+    - typescript
     - security
     - performance
+    - accessibility
+    - composition-api
+    - reactivity
 
-  ignore:
-    files:
+  # Игнорируемые файлы
+  path_filters:
+    ignored:
+      - "**/*.spec.ts"
+      - "**/*.test.ts"
+      - "**/dist/**"
       - "**/node_modules/**"
-      - ".nuxt"
-      - ".output"
+      - "**/.nuxt/**"
+      - "**/.output/**"
+      - "**/coverage/**"
+      - "**/.vite/**"
+      - "**/*.config.js"
+      - "**/*.config.ts"
+      - "**/public/**"
 
+    focused:
+      - "src/components/**/*.vue"
+      - "src/composables/**/*.ts"
+      - "src/stores/**/*.ts"
+      - "src/views/**/*.vue"
+      - "src/utils/**/*.ts"
+
+  # Специфичные проверки для Vue
   vue_checks:
+    # Проверка :key в v-for
     check_keys: true
+
+    # Проверка опасного v-html
     check_v_html: true
-    max_component_size: 200
 
-  language: "ru"
+    # Проверка v-if + v-for на одном элементе
+    check_vif_vfor_same_element: true
 
-autofix:
+    # Максимальный размер компонента
+    max_component_size: 300
+
+    # Максимальная длина template
+    max_template_lines: 200
+
+    # Проверка Composition API паттернов
+    prefer_composition_api: true
+
+    # Проверка TypeScript
+    enforce_typescript: true
+
+    # Проверка props валидации
+    require_prop_types: true
+
+  # Security проверки
+  security:
+    # XSS уязвимости
+    check_xss: true
+
+    # Проверка секретов в коде
+    check_secrets: true
+
+    # SQL injection (если есть backend код)
+    check_sql_injection: true
+
+    # Небезопасные API вызовы
+    check_unsafe_api_calls: true
+
+    # CORS проблемы
+    check_cors: true
+
+  # Performance проверки
+  performance:
+    # Проверка bundle size
+    check_bundle_size: true
+
+    # Неоптимальные computed
+    check_computed_side_effects: true
+
+    # Memory leaks
+    check_memory_leaks: true
+
+    # Отсутствие cleanup в composables
+    check_cleanup: true
+
+    # Большие зависимости
+    check_heavy_dependencies: true
+
+  # Accessibility проверки
+  accessibility:
+    enabled: true
+    check_alt_text: true
+    check_aria_labels: true
+    check_keyboard_navigation: true
+    check_color_contrast: false  # требует дополнительных инструментов
+
+  # Кастомные правила проекта
+  custom_rules:
+    - name: "Используй composables вместо mixins"
+      pattern: "export default.*mixins:"
+      message: "В Vue 3 используй composables вместо mixins"
+      severity: "warning"
+
+    - name: "Избегай Options API"
+      pattern: "export default.*data\\(\\)"
+      message: "Используй Composition API (<script setup>) вместо Options API"
+      severity: "info"
+
+    - name: "Нет console.log в production"
+      pattern: "console\\.(log|debug|info)"
+      message: "Удали console.log перед merge в main"
+      severity: "warning"
+      exclude_files:
+        - "**/*.dev.ts"
+
+    - name: "API ключи в env"
+      pattern: "(API_KEY|SECRET|TOKEN)\\s*=\\s*['\"][^'\"]+['\"]"
+      message: "Храни секреты в .env файлах, не в коде"
+      severity: "error"
+
+# Auto-fix настройки
+auto_reviews:
   enabled: true
-  level: "safe"
+
+  # Базовые правила для авто-фикса
+  rules:
+    - "Add missing :key to v-for"
+    - "Add TypeScript types"
+    - "Fix import ordering"
+    - "Remove unused imports"
+    - "Add aria-labels"
+    - "Fix ESLint errors"
+
+  # Требовать подтверждение для больших изменений
+  require_approval_for_large_changes: true
+  large_change_threshold: 50  # строк кода
+
+# Chat настройки
+chat:
+  enabled: true
+
+  # Автоматические ответы на частые вопросы
+  auto_reply:
+    enabled: true
+    triggers:
+      - pattern: "почему.*TypeScript"
+        response: "TypeScript обеспечивает type safety и улучшает DX. В Vue 3 это особенно важно для props, emits и composables."
+
+      - pattern: "(что такое|зачем).*composable"
+        response: "Composables - это функции для переиспользуемой логики в Composition API. Они заменяют mixins из Vue 2."
+
+# Уведомления
+notifications:
+  enabled: true
+
+  # Когда отправлять уведомления
+  on:
+    - review_completed
+    - security_issue_found
+    - auto_fix_applied
+
+  # Куда отправлять (требует настройки интеграций)
+  channels:
+    - github_comments
+    - slack  # требует webhook
+
+# Метрики и отчеты
+reports:
+  enabled: true
+
+  # Еженедельный отчет о качестве кода
+  weekly_summary: true
+
+  # Метрики для отслеживания
+  metrics:
+    - code_quality_score
+    - security_issues_count
+    - performance_issues_count
+    - accessibility_score
+    - review_turnaround_time
+
+# Интеграция с другими инструментами
+integrations:
+  # ESLint
+  eslint:
+    enabled: true
+    config_path: ".eslintrc.cjs"
+
+  # Prettier
+  prettier:
+    enabled: true
+    config_path: ".prettierrc"
+
+  # TypeScript
+  typescript:
+    enabled: true
+    config_path: "tsconfig.json"
+    strict_mode: true
+
+  # Vite (для анализа bundle)
+  vite:
+    enabled: true
+    config_path: "vite.config.ts"
+
+# Настройки для разных типов PR
+pr_rules:
+  # Для feature веток
+  feature:
+    require_tests: true
+    require_documentation: true
+    min_coverage: 80
+
+  # Для hotfix
+  hotfix:
+    expedited_review: true
+    require_security_check: true
+
+  # Для refactoring
+  refactor:
+    require_performance_check: true
+    allow_large_changes: true
+
+# Обучение команды
+learning:
+  enabled: true
+
+  # Предлагать статьи и документацию
+  suggest_resources: true
+
+  # Объяснять паттерны
+  explain_patterns: true
+
+  # Ссылки на лучшие практики
+  best_practices_links:
+    vue: "https://vuejs.org/style-guide/"
+    typescript: "https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html"
+    composition_api: "https://vuejs.org/guide/reusability/composables.html"
