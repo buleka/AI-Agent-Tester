@@ -1,0 +1,11 @@
+# .momentic/config.yml
+ai:
+  provider: "openai"
+api_key: "${OPENAI_API_KEY}"
+base_url: "${OPENAI_BASE_URL}"
+model: "anthropic/claude-3.5-sonnet"  # OpenRouter модель
+
+# Дополнительные настройки для OpenRouter
+headers:
+  HTTP-Referer: "https://your-site.com"
+X-Title: "Momentic Tests"
